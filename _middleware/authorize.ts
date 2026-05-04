@@ -1,27 +1,43 @@
-import { expressjwt } from 'express-jwt'; // ← named import
-import config from '../config.json';
+import { expressjwt as jwt } from 'express-jwt';
 import db from '../_helpers/db';
 
-const { secret } = config;
+type FileConfig = {
+    secret?: string;
+};
+
+function loadFileConfig(): FileConfig {
+    try {
+        return require('../config.json');
+    } catch {
+        return {};
+    }
+}
+
+const fileConfig: FileConfig = process.env.NODE_ENV === 'production' ? {} : loadFileConfig();
+const secret = process.env.JWT_SECRET || fileConfig.secret;
+
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required in production');
+}
 
 export default function authorize(roles: any = []) {
-  if (typeof roles === 'string') {
-    roles = [roles];
-  }
-
-  return [
-    expressjwt({ secret, algorithms: ['HS256'] }), // ← expressjwt() instead of jwt()
-    async (req: any, res: any, next: any) => {
-      const account = await db.Account.findByPk(req.auth.id); // ← req.auth instead of req.user
-      
-      if (!account || (roles.length && !roles.includes(account.role))) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-
-      req.auth.role = account.role; // ← req.auth instead of req.user
-      const refreshTokens = await account.getRefreshTokens();
-      req.auth.ownsToken = (token: any) => !!refreshTokens.find((x: any) => x.token === token);
-      next();
+    if (typeof roles === 'string') {
+        roles = [roles];
     }
-  ];
+
+    return [
+        jwt({ secret: secret as string, algorithms: ['HS256'] }),
+        async (req: any, res: any, next: any) => {
+            const account = await db.Account.findByPk(req.auth.id);
+
+            if (!account || (roles.length && !roles.includes(account.role))) {
+                return res.status(401).json({ message: 'Unauthorized' });
+            }
+
+            req.auth.role = account.role;
+            const refreshTokens = await account.getRefreshTokens();
+            req.auth.ownsToken = (token: any) => !!refreshTokens.find((x: any) => x.token === token);
+            next();
+        }
+    ];
 }
