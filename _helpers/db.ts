@@ -1,3 +1,8 @@
+// Force @vercel/node to include mysql2 in the serverless bundle.
+// Sequelize loads it dynamically based on `dialect: 'mysql'`, so without
+// this static import Vercel's file tracer leaves it out → runtime error.
+import 'mysql2';
+
 import mysql from 'mysql2/promise';
 import { Sequelize } from 'sequelize';
 import accountModel from '../accounts/account.model';
