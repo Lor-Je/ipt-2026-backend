@@ -53,7 +53,14 @@ async function initialize() {
         port,
         dialect: 'mysql',
         dialectOptions: ssl ? { ssl: { rejectUnauthorized: false } } : undefined,
-        logging: false
+        logging: false,
+        pool: {
+            // Serverless-friendly pool settings (small pool, quick eviction)
+            max: 2,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        }
     });
 
     // Init models
@@ -68,4 +75,9 @@ async function initialize() {
     await sequelize.sync();
 }
 
-initialize();
+// Cache the init promise so we don't reconnect on every serverless invocation,
+// and so that incoming requests can await it before touching the models.
+db.ready = initialize().catch((err: any) => {
+    console.error('DB initialization failed:', err);
+    throw err;
+});
