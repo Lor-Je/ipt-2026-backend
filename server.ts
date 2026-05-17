@@ -36,8 +36,13 @@ app.use(async (_req, res, next) => {
     }
 });
 
-// Health check / root route (prevents 500 on '/')
+// Redirect root to Swagger documentation
 app.get('/', (_req, res) => {
+    res.redirect('/api-docs');
+});
+
+// Health check endpoint (useful for monitoring)
+app.get('/health', (_req, res) => {
     res.json({
         status: 'ok',
         message: 'Node MySQL API is running',
