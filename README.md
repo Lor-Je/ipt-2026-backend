@@ -2,6 +2,16 @@
 
 A REST API built with Node.js, TypeScript, Express, and MySQL/MariaDB. Features JWT authentication, email verification, and role-based access control.
 
+## 🚀 Live Demo
+
+| | Link |
+|---|---|
+| **Backend API** | [https://ipt-2026-backend.vercel.app/](https://ipt-2026-backend.vercel.app/) |
+| **Frontend App** | [https://ipt-2026-frontend.vercel.app/](https://ipt-2026-frontend.vercel.app/) |
+| **Swagger Docs** | [https://ipt-2026-backend.vercel.app/api-docs](https://ipt-2026-backend.vercel.app/api-docs) |
+
+---
+
 ## Tech Stack
 
 - **Runtime:** Node.js + TypeScript
@@ -10,25 +20,28 @@ A REST API built with Node.js, TypeScript, Express, and MySQL/MariaDB. Features 
 - **Auth:** JWT (express-jwt) + Refresh Tokens
 - **Email:** Nodemailer (Ethereal for dev)
 - **Docs:** Swagger UI
+- **Hosting:** Vercel
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
+- Node.js v18+
 - MySQL or MariaDB running locally
 
 ### Installation
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/KeanCaballero/node-mysql-api.git
 cd node-mysql-api
 npm install
 ```
 
 ### Configuration
 
-Create a `config.json` file in the root directory (see `config.example.json`):
+Create a `config.json` file in the root directory (this file is **gitignored** — never commit it):
 
 ```json
 {
@@ -66,6 +79,8 @@ npm start
 
 Server runs on `http://localhost:4000`
 
+---
+
 ## API Endpoints
 
 | Method | URL | Auth | Description |
@@ -84,17 +99,27 @@ Server runs on `http://localhost:4000`
 | PUT | /accounts/:id | User | Update account |
 | DELETE | /accounts/:id | User | Delete account |
 
+---
+
 ## Swagger Docs
 
-Visit `http://localhost:4000/api-docs` for interactive API documentation.
+Interactive API documentation available at:
+- **Local:** `http://localhost:4000/api-docs`
+- **Live:** `https://ipt-2026-backend.vercel.app/api-docs`
+
+---
 
 ## Roles
 
 - **Admin** — First registered account gets Admin role automatically
 - **User** — All subsequent accounts are assigned User role
 
-## Notes
+---
 
-- JWT tokens expire after **15 minutes**
+## Security Notes
+
+- `config.json` is listed in `.gitignore` and must **never** be committed
+- In production, all secrets (DB password, JWT secret, SMTP credentials) are set as **environment variables** in the hosting platform
+- JWT access tokens expire after **15 minutes**
 - Refresh tokens expire after **7 days**
 - Email verification is required before login
