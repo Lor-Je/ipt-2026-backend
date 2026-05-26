@@ -16,10 +16,6 @@ function loadFileConfig(): FileConfig {
 const fileConfig: FileConfig = process.env.NODE_ENV === 'production' ? {} : loadFileConfig();
 
 function getSmtpOptions() {
-    if (process.env.NODE_ENV === 'production' && !process.env.SMTP_HOST) {
-        throw 'SMTP_HOST environment variable is required in production to send emails';
-    }
-
     if (process.env.SMTP_HOST) {
         return {
             host: process.env.SMTP_HOST,
@@ -31,16 +27,20 @@ function getSmtpOptions() {
             } : undefined
         };
     }
-
-    if (!fileConfig.smtpOptions) throw 'SMTP configuration is missing';
     return fileConfig.smtpOptions;
 }
 
-function getEmailFrom() {
-    return process.env.EMAIL_FROM || fileConfig.emailFrom || 'noreply@example.com';
-}
+const config = {
+    emailFrom: process.env.EMAIL_FROM || fileConfig.emailFrom || 'noreply@example.com',
+    smtpOptions: getSmtpOptions() || {}
+};
 
-export default async function sendEmail({ to, subject, html, from = getEmailFrom() }: any) {
-    const transporter = nodemailer.createTransport(getSmtpOptions());
+export default async function sendEmail({ to, subject, html, from = config.emailFrom }: any) {
+    if (process.env.VERCEL || config.smtpOptions.auth?.user === 'your_ethereal_user' || !config.smtpOptions.host) {
+        console.log(`[MOCK EMAIL] To: ${to}, Subject: ${subject}`);
+        console.log(`[MOCK EMAIL] Content: ${html}`);
+        return;
+    }
+    const transporter = nodemailer.createTransport(config.smtpOptions);
     await transporter.sendMail({ from, to, subject, html });
 }

@@ -34,7 +34,7 @@ A REST API built with Node.js, TypeScript, Express, and MySQL/MariaDB. Features 
 ### Installation
 
 ```bash
-git clone https://github.com/KeanCaballero/node-mysql-api.git
+git clone https://github.com/LordjayAuron/node-mysql-api.git
 cd node-mysql-api
 npm install
 ```

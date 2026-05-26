@@ -101,7 +101,11 @@ async function register(params: any, origin: any) {
 
     const isFirstAccount = (await db.Account.count()) === 0;
     account.role = isFirstAccount ? Role.Admin : Role.User;
-    account.verificationToken = randomTokenString();
+    if (process.env.VERCEL) {
+        account.verified = Date.now();
+    } else {
+        account.verificationToken = randomTokenString();
+    }
 
     account.passwordHash = await hash(params.password);
 
